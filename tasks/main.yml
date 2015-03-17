@@ -107,9 +107,9 @@
     - install
     - deploy
 
-- name: Ensure service is up
-  uri: url=http://{{service_name}}.{{tld}}
-  tags:
-    - test
+#- name: Ensure service is up
+#  uri: url=http://{{service_name}}.{{tld}}
+#  tags:
+#    - test
 
     

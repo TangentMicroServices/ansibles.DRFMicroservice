@@ -1,5 +1,4 @@
 python_version: "2.7"
-tld: tangentmicroservices.com
 service_db_engine: "postgresql_psycopg2"
 service_db_host: "127.0.0.1" 
 service_branch: master

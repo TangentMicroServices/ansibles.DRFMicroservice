@@ -1,0 +1,115 @@
+- name: install required packages
+  apt: pkg={{ item.name }} state=installed
+  with_items:
+    - {'name': 'git'}
+    - {'name': 'libpq-dev'}
+  tags:
+    - install
+
+- name: Create required directories
+  file: path={{item.path}} state=directory
+  with_items:
+    - { path : '/var/www/' }
+    - { path : '/srv/venvs/' }
+    - { path : '/srv/static/' }
+    - { path : '/var/log/gunicorn/' }        
+  tags:
+    - install
+
+## this is a bit of a hack ..
+## todo: create deploy key in repo with github API
+- name: Upload SSH key.
+  copy: src=~/.ssh/id_rsa dest=~/.ssh/id_rsa mode=0600
+  tags:
+    - install
+
+
+- name: Create directory for nginx logs
+  file: path=/var/log/nginx/{{service_name}} state=directory
+  tags:
+    - install
+
+- name: Add server block    
+  template: 
+    src='server_block.conf' 
+    dest='/etc/nginx/sites-enabled/{{service_name}}' 
+  notify: restart nginx
+  tags:
+    - install
+
+- name: Add upstart
+  template: 
+    src='upstart.conf' 
+    dest='/etc/init/{{service_name}}.conf'
+  tags:
+    - install
+
+- name: Update code from git.
+  git: repo={{github_repo}}
+       dest=/var/www/{{service_name}}
+       version={{service_branch}}
+       accept_hostkey=yes  
+  tags:
+    - install
+    - deploy
+
+- name: Custom local_settings
+  template: 
+    src='local_settings.py'
+    dest='/var/www/{{service_name}}/{{service_name}}/local_settings.py'    
+  tags:
+    - install
+    - deploy
+
+- name: Use local_settings in settings
+  lineinfile:
+    dest=/var/www/{{service_name}}/{{service_name}}/settings.py
+    line="from local_settings import *"
+    state=present
+  tags:
+    - install
+    - deploy
+
+- name: Install requirements
+  pip: requirements=/var/www/{{service_name}}/requirements.txt virtualenv=/srv/venvs/{{service_name}}
+  tags:
+    - install
+    - deploy
+
+- name: Install psycopg2
+  pip: name=psycopg2 virtualenv=/srv/venvs/{{service_name}}
+  tags:
+    - install
+    - deploy
+
+- name: Run syncdb
+  django_manage: command=syncdb app_path=/var/www/{{service_name}} virtualenv=/srv/venvs/{{service_name}}
+  tags:
+    - install
+    - deploy
+
+- name: Run migrate
+  django_manage: command=migrate app_path=/var/www/{{service_name}} virtualenv=/srv/venvs/{{service_name}}
+  tags:
+    - install
+    - deploy    
+
+- name: Run collectstatic
+  django_manage: command=collectstatic app_path=/var/www/{{service_name}} virtualenv=/srv/venvs/{{service_name}}
+  #ignore_errors: yes
+  tags:
+    - install
+    - deploy
+
+- name: Restart app 
+  service: name={{service_name}} state=restarted
+  tags:
+    - install
+    - deploy
+
+- name: Ensure service is up
+  get_url: url=http://{{service_name}}.{{tld}}
+  tags:
+    - test
+
+    

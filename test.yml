@@ -1,0 +1,28 @@
+- hosts: all
+  vars:
+    service_name: libraryservice
+    github_repo: git@github.com:TangentMicroServices/LibraryService.git
+    service_http_port: 8011
+    service_db_password: testtest
+    postgresql_databases:
+      - name: '{{service_name}}'
+
+    postgresql_users:
+      - name: '{{service_name}}'
+        pass: '{{service_db_password}}'
+        encrypted: no       # denotes if the password is already encrypted.
+
+    postgresql_user_privileges:
+      - name: '{{service_name}}'          # user name
+        db: '{{service_name}}'            # database
+        priv: "ALL"        # privilege string format: example: INSERT,UPDATE/table:SELECT/anothertable:ALL
+
+  vars_files:
+    - vars/main.yml
+
+  roles:
+    - Ansibles.postgresql
+    - toast38coza.djangoserver
+ 
+  tasks:
+    - include: 'tasks/main.yml'

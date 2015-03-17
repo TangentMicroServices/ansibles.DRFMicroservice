@@ -108,7 +108,7 @@
     - deploy
 
 - name: Ensure service is up
-  get_url: url=http://{{service_name}}.{{tld}}
+  uri: url=http://{{service_name}}.{{tld}}
   tags:
     - test
 

@@ -1,3 +1,4 @@
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.{{service_db_engine}}', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -11,3 +12,7 @@ DATABASES = {
 }
 
 STATIC_ROOT = '/srv/static/{{service_name}}/static/'
+
+{% for service in services %}
+{{service|upper}}_BASE_URL = "http://{{service}}.{{tld}}"
+{% endfor %}

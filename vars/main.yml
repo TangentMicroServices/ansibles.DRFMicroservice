@@ -3,3 +3,22 @@ tld: tangentmicroservices.com
 service_db_engine: "postgresql_psycopg2"
 service_db_host: "127.0.0.1" 
 service_branch: master
+
+postgresql_databases:
+  - name: '{{service_name}}'
+
+postgresql_users:
+  - name: '{{service_name}}'
+    pass: '{{service_db_password}}'
+    encrypted: no       # denotes if the password is already encrypted.
+
+postgresql_user_privileges:
+  - name: '{{service_name}}'          # user name
+    db: '{{service_name}}'            # database
+    priv: "ALL"        # privilege string format: example: INSERT,UPDATE/table:SELECT/anothertable:ALL
+
+services:
+  - userservice
+  - libraryservice
+  - projectservice
+  - hoursservice

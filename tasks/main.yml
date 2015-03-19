@@ -22,7 +22,7 @@
   copy: src=~/.ssh/id_rsa dest=~/.ssh/id_rsa mode=0600
   tags:
     - install
-
+    - sshkey
 
 - name: Create directory for nginx logs
   file: path=/var/log/nginx/{{service_name}} state=directory

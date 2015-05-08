@@ -49,6 +49,7 @@
        dest=/var/www/{{service_name}}
        version={{service_branch}}
        accept_hostkey=yes  
+       force=yes
   tags:
     - install
     - deploy

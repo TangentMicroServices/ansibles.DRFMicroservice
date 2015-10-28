@@ -16,3 +16,6 @@ STATIC_ROOT = '/srv/static/{{service_name}}/static/'
 {% for service in services %}
 {{service|upper}}_BASE_URL = "http://{{service}}.{{tld}}"
 {% endfor %}
+
+TANGENT_ADMIN_TOKEN='{{tangent_admin_token}}'
+TLD='{{tld}}'
